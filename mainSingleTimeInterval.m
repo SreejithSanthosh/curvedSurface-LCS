@@ -118,7 +118,7 @@ end
 %% Plot the advection
 
 % % Backward advection
-clc; close all; VideoFileName=fullfile(cd,'saveResults','forAdvct'); coarse = 10; % How much to coarsen velocity field
+clc; close all; VideoFileName=fullfile(cd,'saveResults','bckAdvct'); coarse = 10; % How much to coarsen velocity field
 writerObj = VideoWriter(VideoFileName,'MPEG-4');writerObj.FrameRate = 5;  writerObj.Quality = 100;
 writerObj.FileFormat; open(writerObj); count = 0;
 
