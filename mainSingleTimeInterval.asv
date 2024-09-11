@@ -74,7 +74,7 @@ for idXMesh=1:round(Nt/Nplot):Nt
         'LineWidth',1,'Color','k','MaxHeadSize',20); colorbar;
 
     sgtitle(sprintf('t = %.2f',t_i),'Interpreter','latex','FontSize',fntSz);
-    daspect([1 1 1]); axis tight off;  hold off
+    daspect([1 1 1]); axis tight;  hold off
     
     set(gca,'FontSize',fntSz)
     mov(count) = getframe(gcf);       
@@ -189,7 +189,7 @@ end
 writeVideo(writerObj,mov); close(writerObj); 
 
 %% Calculate and Visualize the FTLE values 
-clc; close all; viewAngle = [-107,20];
+clc; close all; 
 
 % Compute bw-FTLE
 
@@ -199,20 +199,20 @@ Tri_pts_Uni = TrianT{ct_f}; % The triangulation of the mesh at tf
 xfData = squeeze(x{1}); yfData = squeeze(y{1}); zfData = squeeze(z{1}); Trif_Data = squeeze(TrianT{1});
 [bFTLE,detdelF_vert,eigVec] = FTLECompute(x0,y0,z0,xf,yf,zf,xfData,yfData,zfData,Tri_pts_Uni,Trif_Data);
 
-f= figure('color','w','Units','normalized','OuterPosition',[0.0060 0.2435 0.9878 0.619]);
+f= figure('color','w','Units','normalized','OuterPosition',[0,0,1,1]);
 
-subplot(1,4,1)
+subplot(2,2,1)
 trisurf(Tri_pts_Uni,x0,y0,z0,log(detdelF_vert),'FaceAlpha',1,'Edgecolor','none');
-hold on; cmocean('balance','pivot',0);  colorbar('southoutside'); axis equal; shading interp;  axis off;
-title(sprintf('$ {}_{iso}\\Lambda_{%.2f}^{%.2f} $',time(ct_f),time(ct_i)),'Interpreter','latex'); set(gca,'FontSize',fntSz);
-view(viewAngle); camva(7);
+hold on; cmocean('balance','pivot',0); 
+scatter3(squeeze(xt_Advect_for(end,:)),squeeze(yt_Advect_for(end,:)),squeeze(zt_Advect_for(end,:)),10,'r','filled')
+colorbar; axis equal; shading interp;  
+title('abs(detdelF)-bw','Interpreter','latex'); set(gca,'FontSize',fntSz);
 
-subplot(1,4,2)
+subplot(2,2,2)
 trisurf(Tri_pts_Uni,x0,y0,z0,log(bFTLE),'FaceAlpha',1,'Edgecolor','none'); hold on 
 quiver3(x0,y0,z0,eigVec(1,:),eigVec(2,:),eigVec(3,:),'r','ShowArrowHead','off'); hold off
-axis equal; shading interp; axis off; view(viewAngle); camva(7);
-title(sprintf('$ \\Lambda_{%.2f}^{%.2f},\\mathbf{\\zeta}_{%.2f}^{%.2f} $',time(ct_f),time(ct_i),time(ct_f),time(ct_i)),'Interpreter','latex'); set(gca,'FontSize',fntSz);
-colorbar('southoutside')
+colorbar; axis equal; shading interp;  
+title('bwFTLE','Interpreter','latex'); set(gca,'FontSize',fntSz);
 
 % Compute FW-FTLE
 x0 = squeeze(xt_Advect_for(1,:)); y0 = squeeze(yt_Advect_for(1,:)); z0 = squeeze(zt_Advect_for(1,:));
@@ -221,17 +221,13 @@ Tri_pts_Uni = TrianT{1}; xfData = squeeze(x{end}); yfData = squeeze(y{end}); zfD
 
 [fFTLE,detdelF_vert,eigVec] = FTLECompute(x0,y0,z0,xf,yf,zf,xfData,yfData,zfData,Tri_pts_Uni,Trif_Data);
 
-subplot(1,4,3)
+subplot(2,2,3)
 trisurf(Tri_pts_Uni,x0,y0,z0,log(detdelF_vert),'FaceAlpha',1,'Edgecolor','none');
-cmocean('balance','pivot',0);colorbar('southoutside'); axis equal; shading interp;  axis off;
-view(viewAngle); camva(7);
-title(sprintf('$ {}_{iso}\\Lambda_{%.2f}^{%.2f} $',time(ct_i),time(ct_f)),'Interpreter','latex'); set(gca,'FontSize',fntSz);
+cmocean('balance','pivot',0);colorbar; axis equal; shading interp;  
+title('abs(detdelF)-fw','Interpreter','latex'); set(gca,'FontSize',fntSz);
 
-subplot(1,4,4)
+subplot(2,2,4)
 trisurf(Tri_pts_Uni,x0,y0,z0,log(fFTLE),'FaceAlpha',1,'Edgecolor','none');hold on 
 quiver3(x0,y0,z0,eigVec(1,:),eigVec(2,:),eigVec(3,:),'r','ShowArrowHead','off'); hold off
-colorbar('southoutside'); axis equal; shading interp;  axis off;
-view(viewAngle); camva(7);
-title(sprintf('$ \\Lambda_{%.2f}^{%.2f},\\mathbf{\\zeta}_{%.2f}^{%.2f} $',time(ct_i),time(ct_f),time(ct_i),time(ct_f)),'Interpreter','latex'); set(gca,'FontSize',fntSz);
-
-
+colorbar; axis equal; shading interp;  
+title(sprintf('$ \\Lambda_{%.2f}^{%.2f} $',time(ct_i),time(ct_f)),'Interpreter','latex'); set(gca,'FontSize',fntSz);
