@@ -219,5 +219,5 @@ end
 function surface_points = point2trimesh_mycompute(vertices,faces,points)
 
 FV.faces = faces; FV.nodes = vertices;
-[surface_points,~,~] = fastPoint2TriMeshSRJv1(FV,points,0);
+[surface_points,~,~] = fastPoint2TriMeshModif(FV,points,0);
 end

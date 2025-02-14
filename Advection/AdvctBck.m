@@ -17,7 +17,7 @@ xMesh = squeeze(x{t_idX_closest}); yMesh = squeeze(y{t_idX_closest}); zMesh = sq
 inputs = struct(); inputs.nodes = [squeeze(xMesh), squeeze(yMesh),squeeze(zMesh)]; %Faces
 inputs.faces = TrianT{t_idX_closest}; points = [xq,yq,zq];
 
-surface_points = fastPoint2TriMeshSRJv1(inputs,points);
+surface_points = fastPoint2TriMeshModif(inputs,points);
 xq = squeeze(surface_points(:,1)); yq = squeeze(surface_points(:,2)); zq = squeeze(surface_points(:,3));
     
 %Intialize the variables
@@ -208,5 +208,5 @@ end
 function surface_points = point2trimesh_mycompute(vertices,faces,points)
 
 FV.faces = faces; FV.nodes = vertices;
-[surface_points,~,~] = fastPoint2TriMeshSRJv1(FV,points,0);
+[surface_points,~,~] = fastPoint2TriMeshModif(FV,points,0);
 end

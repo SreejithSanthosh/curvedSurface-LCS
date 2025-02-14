@@ -5,7 +5,7 @@ v1q = 0*xq; v2q = 0*xq; v3q = 0*xq;
 %Making the triangulation for the mesh
 FV.nodes = [squeeze(xData), squeeze(yData),squeeze(zData)]; %Faces
 FV.faces = Triangul; points = [xq,yq,zq];
-[~,baryCoord,faceId] = fastPoint2TriMeshSRJv1(FV,points,0);
+[~,baryCoord,faceId] = fastPoint2TriMeshModif(FV,points,0);
 
 for i = 1:size(baryCoord,1)
     faceId_i = faceId(i); IdxFaceVert = Triangul(faceId_i,:);

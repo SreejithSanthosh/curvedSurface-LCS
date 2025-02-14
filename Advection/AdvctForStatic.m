@@ -146,5 +146,5 @@ end
 end
 
 function surface_points = point2trimesh_mycomputeStatic(inputMesh,points)
-[surface_points,~,~] = fastPoint2TriMeshSRJv1(inputMesh,points,0);
+[surface_points,~,~] = fastPoint2TriMeshModif(inputMesh,points,0);
 end

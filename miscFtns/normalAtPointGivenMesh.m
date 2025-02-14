@@ -6,7 +6,7 @@ nvecf = zeros([3,numel(xq)]);
 FV.nodes = [squeeze(xData), squeeze(yData),squeeze(zData)]; %Faces
 FV.faces = Triangul; points = [xq,yq,zq];
 
-[~,~,faceId] = fastPoint2TriMeshSRJv1(FV,points,0);
+[~,~,faceId] = fastPoint2TriMeshModif(FV,points,0);
 
 for i = 1:numel(xq)
     faceId_i = faceId(i); idXMesh = Triangul(faceId_i,:);

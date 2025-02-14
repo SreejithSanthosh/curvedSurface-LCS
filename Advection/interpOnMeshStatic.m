@@ -4,7 +4,7 @@ v1q = 0*xq; v2q = 0*xq; v3q = 0*xq;
 
 %Making the triangulation for the mesh
 points = [xq,yq,zq];
-[~,baryCoord,faceId] = fastPoint2TriMeshSRJv1(inputMesh,points,0);
+[~,baryCoord,faceId] = fastPoint2TriMeshModif(inputMesh,points,0);
 
 Triangul = inputMesh.faces;
 for i = 1:size(baryCoord,1)
