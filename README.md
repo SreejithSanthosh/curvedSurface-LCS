@@ -1,5 +1,4 @@
-## FTLE on Curved Surface 
-The code is part of the paper by S. Santhosh et al on computing FTLE for material flows on curved surfaces. 
+## Code to compute coherent structures for flows on curved surface 
+Coherent structures offer a method to quantify the material transport and deformation properties of flows [1](https://www.annualreviews.org/content/journals/10.1146/annurev-fluid-010313-141322). This repo contains MATLAB code to compute coherent structures and Lagrangian deformation for flows on curved surface. Details regarding the method used to compute these quantities is given in the accompanying paper [S. Santhosh et al](). The tutorial on how to use this code is described in the [documentation](https://sreejithsanthosh.github.io/FTLEhub/docs/Tutorials/FTLECurvedSurface.html)  
 
-The tutorials on how to use this code is described in the [documentation](https://sreejithsanthosh.github.io/FTLEhub)  
 ![FTLE Banner](Images/FTLEBanner.png)
