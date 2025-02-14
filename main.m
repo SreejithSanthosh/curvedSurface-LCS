@@ -10,7 +10,7 @@ load(fullfile(cd,'Data','staticMesh.mat'));  Nt = size(timeArr,2);
 %% Parameters- NEEDS USER INPUT  
 
 isStatic = 1; % 1- isStatic Mesh on the data, 0 - Meshdeforms/changes in every time
-cpu_num = 2; % The number of parallel cpu cores to be alloted for advection 
+cpu_num = 10; % The number of parallel cpu cores to be alloted for advection 
 % NOTE : The velocity data is copied across all cores therefore if velocity
 % data is  y GB; The total RAM required for 'n' cores is n*y GB  
 
@@ -201,20 +201,20 @@ Tri_pts_Uni = TrianT{ct_f}; % The triangulation of the mesh at tf
 xfData = squeeze(x{1}); yfData = squeeze(y{1}); zfData = squeeze(z{1}); Trif_Data = squeeze(TrianT{1});
 [lambdaField,lambdaIsoField,maxDefEigVec] = lagDefCompute(x0,y0,z0,xf,yf,zf,xfData,yfData,zfData,Tri_pts_Uni,Trif_Data,tf,ti);
 
-f= figure('color','w','Units','normalized','OuterPosition',[0.0060 0.2435 0.9878 0.619]);
+f= figure('color',[39 38 43]./255,'Units','normalized','OuterPosition',[0.0060 0.2435 0.9878 0.619]);
 
 subplot(1,4,1)
 trisurf(Tri_pts_Uni,x0,y0,z0,lambdaIsoField,'FaceAlpha',1,'Edgecolor','none');
-hold on;  colorbar('southoutside'); axis equal; shading interp;  axis off;
-title(sprintf('$ {}_{iso}\\Lambda_{%.2f}^{%.2f} $',timeArr(ct_f),timeArr(ct_i)),'Interpreter','latex'); set(gca,'FontSize',fntSz);
+hold on;  c = colorbar('southoutside'); axis equal; shading interp;  axis off;c.Color = 'w';
+title(sprintf('$ {}_{iso}\\Lambda_{%.2f}^{%.2f} $',timeArr(ct_f),timeArr(ct_i)),'Interpreter','latex','color','w'); set(gca,'FontSize',fntSz);
 view(viewAngle); camva(7);
 
 subplot(1,4,2)
 trisurf(Tri_pts_Uni,x0,y0,z0,lambdaField,'FaceAlpha',1,'Edgecolor','none'); hold on 
 quiver3(x0,y0,z0,maxDefEigVec(1,:),maxDefEigVec(2,:),maxDefEigVec(3,:),'k','Linewidth',1,'ShowArrowHead','off'); hold off
-axis equal; shading interp; axis off; view(viewAngle); camva(7);
-title(sprintf('$ \\Lambda_{%.2f}^{%.2f},\\mathbf{\\zeta}_{%.2f}^{%.2f} $',timeArr(ct_f),timeArr(ct_i),timeArr(ct_f),timeArr(ct_i)),'Interpreter','latex'); set(gca,'FontSize',fntSz);
-colorbar('southoutside')
+axis equal; shading interp; axis off; view(viewAngle); camva(7); 
+title(sprintf('$ \\Lambda_{%.2f}^{%.2f},\\mathbf{\\zeta}_{%.2f}^{%.2f} $',timeArr(ct_f),timeArr(ct_i),timeArr(ct_f),timeArr(ct_i)),'Interpreter','latex','color','w'); set(gca,'FontSize',fntSz);
+c = colorbar('southoutside'); c.Color = 'w';
 
 % Compute FW-FTLE
 x0 = squeeze(xt_Advect_for(1,:)); y0 = squeeze(yt_Advect_for(1,:)); z0 = squeeze(zt_Advect_for(1,:));
@@ -227,15 +227,15 @@ Tri_pts_Uni = TrianT{1}; xfData = squeeze(x{end}); yfData = squeeze(y{end}); zfD
 
 subplot(1,4,3)
 trisurf(Tri_pts_Uni,x0,y0,z0,lambdaIsoField,'FaceAlpha',1,'Edgecolor','none');
-colorbar('southoutside'); axis equal; shading interp;  axis off;
+c = colorbar('southoutside'); axis equal; shading interp;  axis off; c.Color = 'w';
 view(viewAngle); camva(7);
-title(sprintf('$ {}_{iso}\\Lambda_{%.2f}^{%.2f} $',timeArr(ct_i),timeArr(ct_f)),'Interpreter','latex'); set(gca,'FontSize',fntSz);
+title(sprintf('$ {}_{iso}\\Lambda_{%.2f}^{%.2f} $',timeArr(ct_i),timeArr(ct_f)),'Interpreter','latex','color','w'); set(gca,'FontSize',fntSz);
 
 subplot(1,4,4)
 trisurf(Tri_pts_Uni,x0,y0,z0,lambdaField,'FaceAlpha',1,'Edgecolor','none');hold on 
 quiver3(x0,y0,z0,maxDefEigVec(1,:),maxDefEigVec(2,:),maxDefEigVec(3,:),'k','Linewidth',1,'ShowArrowHead','off'); hold off
-colorbar('southoutside'); axis equal; shading interp;  axis off;
+c = colorbar('southoutside'); axis equal; shading interp;  axis off;c.Color = 'w';
 view(viewAngle); camva(7);
-title(sprintf('$ \\Lambda_{%.2f}^{%.2f},\\mathbf{\\zeta}_{%.2f}^{%.2f} $',timeArr(ct_i),timeArr(ct_f),timeArr(ct_i),timeArr(ct_f)),'Interpreter','latex'); set(gca,'FontSize',fntSz);
+title(sprintf('$ \\Lambda_{%.2f}^{%.2f},\\mathbf{\\zeta}_{%.2f}^{%.2f} $',timeArr(ct_i),timeArr(ct_f),timeArr(ct_i),timeArr(ct_f)),'Interpreter','latex','color','w'); set(gca,'FontSize',fntSz);
 
 
