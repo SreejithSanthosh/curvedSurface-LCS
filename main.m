@@ -1,27 +1,30 @@
 % Clearing the workspace and adding all the necessary paths
 clear; clc; close all
-
 addpath(fullfile(cd,'Advection'));
 addpath(fullfile(cd,'LagrangianDeform'));
 addpath(fullfile(cd,'miscFtns'));
 
-% % Load the data and generate a KDTree 
-load(fullfile(cd,'Data','staticMesh.mat'));  Nt = size(timeArr,2);
+% % Load the data
+load(fullfile(cd,'Data','growingSphere.mat'));  Nt = size(timeArr,2);
 %% Parameters- NEEDS USER INPUT  
 
-isStatic = 1; % 1- isStatic Mesh on the data, 0 - Meshdeforms/changes in every time
+isStatic = 0; % 1- isStatic Mesh on the data, 0 - Meshdeforms/changes in every time
 cpu_num = 10; % The number of parallel cpu cores to be alloted for advection 
 % NOTE : The velocity data is copied across all cores therefore if velocity
 % data is  y GB; The total RAM required for 'n' cores is n*y GB  
 
+%Visualization parameters
 Nplot = 20;  % How many frames are being plotted on the videos generated in this code 
 fntSz = 30; % FontSize of the plots 
+camView = [113,6.2]; % The camera view for all plots
+camvaAmp = 6;
 
 % We compute the FTLE for trajectories from timeArr(ct_i) -> timeArr(ct_f)
 % time array is loaded in along with the data 
 ct_f = Nt; ct_i = 1; dt = 1*10^(-1);
-
-%% Do some pre-compute for static Mesh and parallel pool Initiation
+regulFac = 10^(-7);
+%% Do pre-compute of KDTree if the velocity data is on a static mesh
+% Initialize parallel pool
 
 if isStatic == 1
     inputMesh = struct();
@@ -46,11 +49,11 @@ elseif (~isempty(poolobj)) && (poolobj.NumWorkers~=cpu_num)  % if parpool is not
 end
 
 
-%% See and visualize the data 
+%% Visualize the velocity field 
 
 clc; close all; VideoFileName=fullfile(cd,'saveResults','vizVelocity'); coarse = 2; % How much to coarsen velocity field
 writerObj = VideoWriter(VideoFileName,'MPEG-4');writerObj.FrameRate = 5;  writerObj.Quality = 100;
-writerObj.FileFormat; open(writerObj); count = 0;
+writerObj.FileFormat; open(writerObj); count = 0; axLim = 2;
 
 figure('Color','w','units','normalized','outerposition',[0 0 1 1]);
 
@@ -65,16 +68,18 @@ for idXMesh=1:round(Nt/Nplot):Nt
     % Plot the quantities
     subplot(1,1,1)
     trisurf(TriData,xData,yData,zData,vMag_Data,'FaceAlpha',1,'Edgecolor','none')
-    colormap(parula); shading interp; hold on 
+    colormap('turbo'); shading interp; hold on 
 
     quiver3(xData(1:coarse:end),yData(1:coarse:end),zData(1:coarse:end),...
         v1Data(1:coarse:end),...
         v2Data(1:coarse:end),...
         v3Data(1:coarse:end),...
         'LineWidth',1,'Color','k','MaxHeadSize',20); colorbar;
+    
 
-    sgtitle(sprintf('t = %.2f',t_i),'Interpreter','latex','FontSize',fntSz);
-    daspect([1 1 1]); axis tight off;  hold off
+    sgtitle(sprintf('v(x,t = %.2f)',t_i),'Interpreter','latex','FontSize',fntSz);
+    daspect([1 1 1]); axis off;  hold off
+    xlim([-axLim axLim]); ylim([-axLim axLim]); zlim([-axLim axLim]); view(camView);
     
     set(gca,'FontSize',fntSz)
     mov(count) = getframe(gcf);       
@@ -115,7 +120,7 @@ else
         tArr_Advect_for,xqFor,yqFor,zqFor,timeArr,v,x,y,z,TrianT);
 end 
 
-%% Plot the advection
+%% Plot the advection of Lagrangian grid
 
 % % Backward advection
 clc; close all; VideoFileName=fullfile(cd,'saveResults','bckAdvct'); coarse = 10; % How much to coarsen velocity field
@@ -139,14 +144,16 @@ for i=1:round(numel(tauSave_Advect)/Nplot):numel(tauSave_Advect)
 
     % Plot the quantities
     trisurf(TriData,xData,yData,zData,vMag_Data,'FaceAlpha',1,'Edgecolor','none')
-    colormap(parula); shading interp; hold on 
+    colormap('turbo'); shading interp; hold on 
     quiver3(xData(1:coarse:end),yData(1:coarse:end),zData(1:coarse:end),...
         v1Data(1:coarse:end),...
         v2Data(1:coarse:end),...
         v3Data(1:coarse:end),...
         'LineWidth',1,'Color','k','MaxHeadSize',20)
     scatter3(xPts_i,yPts_i,zPts_i,10,'r','filled'); hold off 
-    title(sprintf('t = %.2f',t_i),'Interpreter','latex');daspect([1 1 1]); axis tight off
+    title(sprintf('v(x,t = %.2f)',t_i),'Interpreter','latex');daspect([1 1 1]); 
+    c = colorbar; c.FontSize = fntSz;
+    xlim([-axLim axLim]); ylim([-axLim axLim]); zlim([-axLim axLim]); view(camView); axis off;
     
     set(gca,'FontSize',fntSz)
     mov(count) = getframe(gcf);       
@@ -174,24 +181,29 @@ for i=1:round(numel(tSave_Advect_for)/Nplot):numel(tSave_Advect_for)
 
     % Plot the quantities
     trisurf(TriData,xData,yData,zData,vMag_Data,'FaceAlpha',1,'Edgecolor','none')
-    colormap(parula); shading interp; hold on 
+    colormap('turbo'); shading interp; hold on 
     quiver3(xData(1:coarse:end),yData(1:coarse:end),zData(1:coarse:end),...
         v1Data(1:coarse:end),...
         v2Data(1:coarse:end),...
         v3Data(1:coarse:end),...
         'LineWidth',1,'Color','k','MaxHeadSize',20)
     scatter3(xPts_i,yPts_i,zPts_i,10,'r','filled'); hold off 
-    title(sprintf('t = %.2f',t_i),'Interpreter','latex'); daspect([1 1 1]); axis tight off
+    title(sprintf('v(x,t = %.2f)',t_i),'Interpreter','latex'); daspect([1 1 1]); 
+    c = colorbar; c.FontSize = fntSz;
+    xlim([-axLim axLim]); ylim([-axLim axLim]); zlim([-axLim axLim]); view(camView); axis off;
     
     set(gca,'FontSize',fntSz)
     mov(count) = getframe(gcf);       
 end 
 writeVideo(writerObj,mov); close(writerObj); 
 
-%% Calculate and Visualize the FTLE values 
-clc; close all; viewAngle = [-107,20];
+%% Calculate and Visualize the FTLE and isotropic Lagrangian deformation 
+% The function `lagDefCompute` the necessary quantities 
+% for both forward and backward time analysis 
 
-% Compute bw-FTLE
+clc; close all; 
+
+% Compute backward advection deformation
 
 x0 = squeeze(xt_Advect(1,:)); y0 = squeeze(yt_Advect(1,:)); z0 = squeeze(zt_Advect(1,:));
 xf = squeeze(xt_Advect(end,:)); yf = squeeze(yt_Advect(end,:)); zf = squeeze(zt_Advect(end,:));
@@ -199,43 +211,50 @@ tf = timeArr(ct_i); ti = timeArr(ct_f); % Lagrangian time interval of analysis
 
 Tri_pts_Uni = TrianT{ct_f}; % The triangulation of the mesh at tf
 xfData = squeeze(x{1}); yfData = squeeze(y{1}); zfData = squeeze(z{1}); Trif_Data = squeeze(TrianT{1});
-[lambdaField,lambdaIsoField,maxDefEigVec] = lagDefCompute(x0,y0,z0,xf,yf,zf,xfData,yfData,zfData,Tri_pts_Uni,Trif_Data,tf,ti);
+[lambdaField,lambdaIsoField,maxDefEigVec] = lagDefCompute(x0,y0,z0,xf,yf,zf,xfData,yfData,zfData,Tri_pts_Uni,Trif_Data,tf,ti,regulFac);
 
 f= figure('color',[39 38 43]./255,'Units','normalized','OuterPosition',[0.0060 0.2435 0.9878 0.619]);
 
 subplot(1,4,1)
-trisurf(Tri_pts_Uni,x0,y0,z0,lambdaIsoField,'FaceAlpha',1,'Edgecolor','none');
+p = trisurf(Tri_pts_Uni,x0,y0,z0,lambdaIsoField,'FaceAlpha',1,'Edgecolor','none');
+p.SpecularStrength = 0.3; p.AmbientStrength = 0.4;
 hold on;  c = colorbar('southoutside'); axis equal; shading interp;  axis off;c.Color = 'w';
 title(sprintf('$ {}_{iso}\\Lambda_{%.2f}^{%.2f} $',timeArr(ct_f),timeArr(ct_i)),'Interpreter','latex','color','w'); set(gca,'FontSize',fntSz);
-view(viewAngle); camva(7);
+view(camView); camva(camvaAmp);
+xlim([-axLim axLim]); ylim([-axLim axLim]); zlim([-axLim axLim]);
 
 subplot(1,4,2)
-trisurf(Tri_pts_Uni,x0,y0,z0,lambdaField,'FaceAlpha',1,'Edgecolor','none'); hold on 
+p = trisurf(Tri_pts_Uni,x0,y0,z0,lambdaField,'FaceAlpha',1,'Edgecolor','none'); hold on 
+p.SpecularStrength = 0.3; p.AmbientStrength = 0.4;
 quiver3(x0,y0,z0,maxDefEigVec(1,:),maxDefEigVec(2,:),maxDefEigVec(3,:),'k','Linewidth',1,'ShowArrowHead','off'); hold off
-axis equal; shading interp; axis off; view(viewAngle); camva(7); 
+axis equal; shading interp; axis off; view(camView); camva(camvaAmp); 
 title(sprintf('$ \\Lambda_{%.2f}^{%.2f},\\mathbf{\\zeta}_{%.2f}^{%.2f} $',timeArr(ct_f),timeArr(ct_i),timeArr(ct_f),timeArr(ct_i)),'Interpreter','latex','color','w'); set(gca,'FontSize',fntSz);
 c = colorbar('southoutside'); c.Color = 'w';
+ xlim([-axLim axLim]); ylim([-axLim axLim]); zlim([-axLim axLim]);
 
-% Compute FW-FTLE
+% Compute forward advection deformation
 x0 = squeeze(xt_Advect_for(1,:)); y0 = squeeze(yt_Advect_for(1,:)); z0 = squeeze(zt_Advect_for(1,:));
 xf = squeeze(xt_Advect_for(end,:)); yf = squeeze(yt_Advect_for(end,:)); zf = squeeze(zt_Advect_for(end,:));
 tf = timeArr(ct_f); ti = timeArr(ct_i); % Lagrangian time interval of analysis 
 
 Tri_pts_Uni = TrianT{1}; xfData = squeeze(x{end}); yfData = squeeze(y{end}); zfData = squeeze(z{end}); Trif_Data = squeeze(TrianT{end});
-
-[lambdaField,lambdaIsoField,maxDefEigVec] = lagDefCompute(x0,y0,z0,xf,yf,zf,xfData,yfData,zfData,Tri_pts_Uni,Trif_Data,tf,ti);
+[lambdaField,lambdaIsoField,maxDefEigVec] = lagDefCompute(x0,y0,z0,xf,yf,zf,xfData,yfData,zfData,Tri_pts_Uni,Trif_Data,tf,ti,regulFac);
 
 subplot(1,4,3)
-trisurf(Tri_pts_Uni,x0,y0,z0,lambdaIsoField,'FaceAlpha',1,'Edgecolor','none');
+p = trisurf(Tri_pts_Uni,x0,y0,z0,lambdaIsoField,'FaceAlpha',1,'Edgecolor','none');
+p.SpecularStrength = 0.3; p.AmbientStrength = 0.4;
 c = colorbar('southoutside'); axis equal; shading interp;  axis off; c.Color = 'w';
-view(viewAngle); camva(7);
+view(camView); camva(camvaAmp);
 title(sprintf('$ {}_{iso}\\Lambda_{%.2f}^{%.2f} $',timeArr(ct_i),timeArr(ct_f)),'Interpreter','latex','color','w'); set(gca,'FontSize',fntSz);
+ xlim([-axLim axLim]); ylim([-axLim axLim]); zlim([-axLim axLim]);
 
 subplot(1,4,4)
-trisurf(Tri_pts_Uni,x0,y0,z0,lambdaField,'FaceAlpha',1,'Edgecolor','none');hold on 
+p = trisurf(Tri_pts_Uni,x0,y0,z0,lambdaField,'FaceAlpha',1,'Edgecolor','none');hold on 
+p.SpecularStrength = 0.3; p.AmbientStrength = 0.4;
 quiver3(x0,y0,z0,maxDefEigVec(1,:),maxDefEigVec(2,:),maxDefEigVec(3,:),'k','Linewidth',1,'ShowArrowHead','off'); hold off
 c = colorbar('southoutside'); axis equal; shading interp;  axis off;c.Color = 'w';
-view(viewAngle); camva(7);
+view(camView); camva(camvaAmp);
 title(sprintf('$ \\Lambda_{%.2f}^{%.2f},\\mathbf{\\zeta}_{%.2f}^{%.2f} $',timeArr(ct_i),timeArr(ct_f),timeArr(ct_i),timeArr(ct_f)),'Interpreter','latex','color','w'); set(gca,'FontSize',fntSz);
+ xlim([-axLim axLim]); ylim([-axLim axLim]); zlim([-axLim axLim]);
 
 

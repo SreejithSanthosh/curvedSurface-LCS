@@ -1,4 +1,4 @@
-function [FTLE_vert,detdelF_vert,eig_vert] = lagDefCompute(x0,y0,z0,xf,yf,zf,xfData,yfData,zfData,Tri_q0,Tri_qf,tf,ti)
+function [FTLE_vert,detdelF_vert,eig_vert] = lagDefCompute(x0,y0,z0,xf,yf,zf,xfData,yfData,zfData,Tri_q0,Tri_qf,tf,ti,regulFac)
 
 % (x0,y0,z0) is the intial tracer location 
 % (xf,yf,zf) is the final tracer location 
@@ -77,7 +77,7 @@ for i = 1:Nvert
     zetaArr = rotMatr0*zetaArr; betaArr = rotMatrf*betaArr;
     
     X = zetaArr(1:2,:); Y = betaArr(1:2,:);
-    regulFac = 10^(-7); delF = (Y*X'+regulFac*size(X,2)*eye(2))*inv(X*X'+regulFac*size(X,2)*eye(2));
+    delF = (Y*X'+regulFac*size(X,2)*eye(2))*inv(X*X'+regulFac*size(X,2)*eye(2));
     cauchMatr = delF'*delF; [V,e] = eig(cauchMatr);
     FTLE_vert(i) = log(sqrt(max(diag(e))))/abs(tf-ti); 
     detdelF_vert(i) = log(abs(det(delF)))/abs(tf-ti);
