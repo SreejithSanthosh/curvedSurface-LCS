@@ -5,4 +5,4 @@ This repository contains MATLAB codes to compute coherent structures and Lagrang
 
 If you are using any of the code, please cite the accompanying work [1].
 
-[1] S. Santhosh, C. Zhu,B. Fencil, M. Serra "Coherent Structures in Active Flows on Dynamic Surfaces" bioRxiv 2025.05.23.655805
+[1] Santhosh, S., Zhu, C., Fencil, B., & Serra, M. (2025). Coherent Structures in Active Flows on Dynamic Surfaces. bioRxiv, 2025-05.
