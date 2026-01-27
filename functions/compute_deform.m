@@ -1,4 +1,5 @@
-function [FTLE,J] = compute_deformation_basic(mesh_r0,mesh_rf,mesh_F0,mesh_Ff,rf,delta)
+function [L2,L1,V0,Vf] = compute_deform(mesh_r0,mesh_rf,mesh_F0,mesh_Ff,rf,delta)
+% This code also computes the eigenvectors
 % mesh_r0 : (Nv_0 x 3) double array
 % mesh_rf : (Nv_f x 3) double array
 % mesh_F0 : (Nf_0 x 3) double array
@@ -16,8 +17,11 @@ mesh_struct_f.nodes = mesh_rf;
 rf = fastPoint2TriMeshModif(mesh_struct_f,rf);
 
 Nq = size(r0,1); % Number of points being advected
-FTLE = nan(Nq, 1); % Initialize FTLE array
-J = nan(Nq, 1); % Initialize Area change array
+L2 = nan(Nq, 1); % Initialize L2 array
+L1 = nan(Nq, 1); % Initialize lowest eigenvalue 
+V0 = nan(Nq, 3); % Initialize eigenvector array at x0
+Vf = nan(Nq, 3); % Initialize eigenvector array at xf
+
 
 TR_0 = triangulation(mesh_F0,mesh_r0);
 TR_f = triangulation(mesh_Ff,mesh_rf);
@@ -75,12 +79,17 @@ for i = 1:Nq
     B(2,1) = zeta2_f*DF*zeta1_0'; B(2,2) = zeta2_f*DF*zeta2_0';
     
 
-    [~,D] = eig(B'*B);
-    eiglist = sqrt(sort(diag(D)));
+    [eV0,D] = eig(B'*B);
+    [eiglist,I] = sort(diag(D)); 
+    eV0 = eV0(:,I); V_large0 = eV0(1,2)*zeta1_0+eV0(2,2)*zeta2_0;
+    eVf = B*eV0; V_largef = eVf(1,2)*zeta1_f+eVf(2,2)*zeta2_f;
+    
+    % Compute the L2 field
+    L2(i) = log(max(eiglist)); % L2 calculation
+    L1(i) = log(min(eiglist)); % lowest eigenval. calculation
+    V0(i,:) = V_large0; % Store the eigVec of largest eig val. at x0
+    Vf(i,:) = V_largef; % Store the eigVec of largest eig val. at xf
 
-    % Compute the FTLE field
-    J(i) = log(abs(eiglist(1)*eiglist(2))); % Jacobian determinant
-    FTLE(i) = log(max(eiglist)); % FTLE calculation
 end 
 
 
