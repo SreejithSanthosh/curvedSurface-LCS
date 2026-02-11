@@ -17,11 +17,10 @@ mesh_struct_f.nodes = mesh_rf;
 rf = fastPoint2TriMeshModif(mesh_struct_f,rf);
 
 Nq = size(r0,1); % Number of points being advected
-L2 = nan(Nq, 1); % Initialize L2 array
-L1 = nan(Nq, 1); % Initialize lowest eigenvalue 
+L2 = nan(Nq, 1); % Largest eigenvalue of B'*B
+L1 = nan(Nq, 1); % Smallest eigenvalue of B'*B
 V0 = nan(Nq, 3); % Initialize eigenvector array at x0
 Vf = nan(Nq, 3); % Initialize eigenvector array at xf
-
 
 TR_0 = triangulation(mesh_F0,mesh_r0);
 TR_f = triangulation(mesh_Ff,mesh_rf);
