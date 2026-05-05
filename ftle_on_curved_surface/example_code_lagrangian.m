@@ -10,7 +10,7 @@ Nt = numel(mesh_time);
 delta = 0.2; % geodesic distance over which to compute deformation
 ct0 = 1; ctf = Nt; % time-interval of analysis 
 
-% % Visualize the velocity field 
+% Visualize the velocity field 
 for ct = 1:Nt
     xct = mesh_r{ct,1};
     yct = mesh_r{ct,2};

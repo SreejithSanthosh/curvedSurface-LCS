@@ -32,10 +32,6 @@ for i = 1:Nq
     X = X - repmat(n0comp,1,3).*n0;
     Y = Y - repmat(n0comp,1,3).*n0;
     
-    warning('off','MATLAB:rankDeficientMatrix')
-    grad_v = Y'/X'; % (3 x 3) double  
-    warning('on','MATLAB:rankDeficientMatrix')
-    
     % Create tangent vector basis at t0
     n0q = VN_0q(i,:);
     if abs(dot(n0q,[1,0,0]))>0.9
@@ -47,10 +43,16 @@ for i = 1:Nq
     zeta2_0 = cross(n0q,zeta1_0);
     zeta1_0 = zeta1_0./norm(zeta1_0);
     zeta2_0 = zeta2_0./norm(zeta2_0);
+    
+    ZETA1_0 = repmat(zeta1_0,size(X,1),1);
+    ZETA2_0 = repmat(zeta2_0,size(X,1),1);
 
-    E = nan(2,2); % E is gradV projected onto the tangent vector basis 
-    E(1,1) = zeta1_0*grad_v*zeta1_0'; E(1,2) = zeta1_0*grad_v*zeta2_0';
-    E(2,1) = zeta2_0*grad_v*zeta1_0'; E(2,2) = zeta2_0*grad_v*zeta2_0';
+    % Compute the true 
+    X_tru = [sum(ZETA1_0.*X,2), sum(ZETA2_0.*X,2)]';
+    Y_tru = [sum(ZETA1_0.*Y,2), sum(ZETA2_0.*Y,2)]';
+    
+    % Faster way to solve Least square estimation 
+    E = Y_tru/X_tru;
     
     D = 0.5*(E+E');
     [eV0,eigMatr] = eig(D);

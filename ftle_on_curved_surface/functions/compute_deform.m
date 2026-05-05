@@ -51,10 +51,6 @@ for i = 1:Nq
     X = X - repmat(n0comp,1,3).*n0;
     Y = Y - repmat(nfcomp,1,3).*nf;
     
-    warning('off','MATLAB:rankDeficientMatrix')
-    DF = Y'/X'; % (3 x 3) double  
-    warning('on','MATLAB:rankDeficientMatrix')
-    
     % Create tangent vector basis at t0
     n0q = VN_0q(i,:);
     if abs(dot(n0q,[1,0,0]))>0.9
@@ -66,6 +62,9 @@ for i = 1:Nq
     zeta2_0 = cross(n0q,zeta1_0);
     zeta1_0 = zeta1_0./norm(zeta1_0);
     zeta2_0 = zeta2_0./norm(zeta2_0);
+    
+    ZETA1_0 = repmat(zeta1_0,size(X,1),1);
+    ZETA2_0 = repmat(zeta2_0,size(X,1),1);
 
     % Create tangent vector basis at tf
     nfq = VN_fq(i,:);
@@ -78,11 +77,16 @@ for i = 1:Nq
     zeta2_f = cross(nfq,zeta1_f);
     zeta1_f = zeta1_f./norm(zeta1_f);
     zeta2_f = zeta2_f./norm(zeta2_f);
-
-    B = nan(2,2); % B is DF projected onto the tangent vector basis 
-    B(1,1) = zeta1_f*DF*zeta1_0'; B(1,2) = zeta1_f*DF*zeta2_0';
-    B(2,1) = zeta2_f*DF*zeta1_0'; B(2,2) = zeta2_f*DF*zeta2_0';
     
+    ZETA1_f = repmat(zeta1_f,size(X,1),1);
+    ZETA2_f = repmat(zeta2_f,size(X,1),1);
+
+    % Compute the true 
+    X_tru = [sum(ZETA1_0.*X,2), sum(ZETA2_0.*X,2)]';
+    Y_tru = [sum(ZETA1_f.*Y,2), sum(ZETA2_f.*Y,2)]';
+    
+    % Faster way to solve Least square estimation 
+    B = Y_tru/X_tru;
 
     [eV0,D] = eig(B'*B);
     [eiglist,I] = sort(diag(D)); 
