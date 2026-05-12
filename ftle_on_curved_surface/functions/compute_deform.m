@@ -1,4 +1,4 @@
-function [L2,L1,V0,Vf] = compute_deform(mesh_r0,mesh_rf,mesh_F0,mesh_Ff,rf,delta)
+function [L2,L1,V0,Vf,condMatr,RE] = compute_deform(mesh_r0,mesh_rf,mesh_F0,mesh_Ff,rf,delta)
 % This code also computes the eigenvectors
 % mesh_r0 : (Nv_0 x 3) double array
 % mesh_rf : (Nv_f x 3) double array
@@ -12,6 +12,8 @@ function [L2,L1,V0,Vf] = compute_deform(mesh_r0,mesh_rf,mesh_F0,mesh_Ff,rf,delta
 % L1 : (Nq x 1) double array : Smallest eigenvalue of B'*B
 % V0 : (Nq x 3) double array : Eigenvector corresponding to L2 at t0
 % Vf : (Nq x 3) double array : Eigenvector corresponding to L2 at tf
+% condMatr : (Nq x 1) double array : condition number of X X^T
+% RE : (Nq x 1) double array : Relative residual error  
 
 r0 = mesh_r0; % Mesh at t0 provides init conditions for tracers
 G = meshToGraph(r0, mesh_F0); % Graph for finding nearby tracers
@@ -27,6 +29,8 @@ L2 = nan(Nq, 1); % Largest eigenvalue of B'*B
 L1 = nan(Nq, 1); % Smallest eigenvalue of B'*B
 V0 = nan(Nq, 3); % Initialize eigenvector array at x0
 Vf = nan(Nq, 3); % Initialize eigenvector array at xf
+condMatr = nan(Nq, 1); % condition number of XX^T
+RE = nan(Nq, 1); % Relative residual error
 
 TR_0 = triangulation(mesh_F0,mesh_r0);
 TR_f = triangulation(mesh_Ff,mesh_rf);
@@ -99,6 +103,12 @@ for i = 1:Nq
     V0(i,:) = V_large0; % Store the eigVec of largest eig val. at x0
     Vf(i,:) = V_largef; % Store the eigVec of largest eig val. at xf
 
+    % Compute robustness metrics 
+    condMatr(i) = cond(X_tru*X_tru');
+    % Compute the relative residual error
+    error_norm = vecnorm(Y_tru - B*X_tru, 2, 1);
+    y_norm = vecnorm(Y_tru, 2, 1);
+    RE(i) = sum(error_norm)/sum(y_norm);
 end 
 
 

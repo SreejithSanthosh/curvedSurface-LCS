@@ -28,7 +28,7 @@ for ct = 1:Nt
     title(sprintf('v(x, t= %.1f) ',mesh_time(ct))...
         ,'FontSize',24,'Interpreter','latex')
     shading interp
-    pause(0.2)
+    % pause(0.2)
 end 
 % Splicing the dataset to corresponding dataset
 % Performs analysis from mesh_time(ct0) to mesh_time(ctf)
@@ -54,15 +54,8 @@ J = 0.5*(log(L1)+log(L2))./(mesh_time(end)-mesh_time(1));
 aniso = 0.5*(log(L2)-log(L1));
 
 
-% Issue warning
-if max(condMatr)> 10^5
-    warning('The mesh is poorly conditioned, which may lead to unreliable results. Consider refining the mesh used to define the velocity field.')
-end 
-
-if max(RE)>10
-    warning('The relative residual error is high, so the results may be unreliable. Consider decreasing the delta parameter and locally refining the mesh in high-error regions.')
-end 
-
+% Check the robustnes metric
+if max(condMatr)>
 
 %% Visualize the deformation metric
 close all; fontSz = 24; camAmp = 8; cam_view = [-33 1.7];
